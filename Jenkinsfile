@@ -45,7 +45,7 @@ pipeline{
                 '''
             }
         }
-        parallel(
+        parallel {
             stage('build-3.8.2-jdk-11-17.12.0') {
                 when {
                     branch 'master'
@@ -82,7 +82,6 @@ pipeline{
                     }
                 }
             }
-        )
+        }
     }
-
 }
