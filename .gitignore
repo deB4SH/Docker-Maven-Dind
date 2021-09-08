@@ -543,3 +543,11 @@ local.properties
 # Typically, this file would be tracked if it contains build/dependency configurations:
 #.project
 
+/target
+/.idea/vcs.xml
+/.idea/modules.xml
+/.idea/misc.xml
+/.idea/jarRepositories.xml
+/.idea/Docker-Maven-Dind.iml
+/.idea/compiler.xml
+/.idea/.name
