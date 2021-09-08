@@ -33,36 +33,49 @@ pipeline{
     }
     //define trigger
     triggers{
-        pollSCM 'H * * * *'
+        pollSCM 'H/30 * * * *'
     }
     //stages to build and deploy
     stages {
-        stage("prepare: login to ghcr") {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                    sh 'docker login ghcr.io -u $user -p $pass'
-                }
-            }
-        }
-        stage("Build Images in parallel") {
+        stage ('check: prepare') {
             when {
                 branch 'master'
             }
             steps {
-                parallel(
-                   a: {
-                        sh 'mvn clean install -f pom.xml'
-                        sh 'mvn docker:push -f pom.xml'
-                   },
-                   b: {
-                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8'
-                        sh 'mvn docker:push -f pom.xml'
-                   },
-                   c: {
-                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16'
-                        sh 'mvn docker:push -f pom.xml'
-                   }
-                )
+                withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                    sh 'docker login ghcr.io -u $user -p $pass'
+                    sh '''
+                        mvn -version
+                        export MAVEN_OPTS="-Xmx1024m"
+                    '''
+                }
+            }
+        }
+        stage('build-3.8.2-jdk-11-17.12.0') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh 'mvn clean install -f pom.xml'
+                sh 'mvn docker:push -f pom.xml'
+            }
+        }
+        stage('build-3.8.2-jdk-8-17.12.0') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8'
+                sh 'mvn docker:push -f pom.xml'
+            }
+        }
+        stage('build-3.8.2-jdk-16-17.12.0') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16'
+                sh 'mvn docker:push -f pom.xml'
             }
         }
     }
