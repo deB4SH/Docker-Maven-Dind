@@ -37,28 +37,32 @@ pipeline{
     }
     //stages to build and deploy
     stages {
+        stage("prepare: login to ghcr") {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                    sh 'docker login ghcr.io -u $user -p $pass'
+                }
+            }
+        }
         stage("Build Images in parallel") {
             when {
                 branch 'master'
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                    sh 'docker login ghcr.io -u $user -p $pass'
-                    parallel(
-                       a: {
-                            sh 'mvn clean install -f pom.xml'
-                            sh 'mvn docker:push -f pom.xml'
-                       },
-                       b: {
-                            sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8'
-                            sh 'mvn docker:push -f pom.xml'
-                       },
-                       c: {
-                            sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16'
-                            sh 'mvn docker:push -f pom.xml'
-                       }
-                    )
-                }
+                parallel(
+                   a: {
+                        sh 'mvn clean install -f pom.xml'
+                        sh 'mvn docker:push -f pom.xml'
+                   },
+                   b: {
+                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8'
+                        sh 'mvn docker:push -f pom.xml'
+                   },
+                   c: {
+                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16'
+                        sh 'mvn docker:push -f pom.xml'
+                   }
+                )
             }
         }
     }
