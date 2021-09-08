@@ -45,40 +45,42 @@ pipeline{
                 '''
             }
         }
-        parallel {
-            stage('build-3.8.2-jdk-11-17.12.0') {
-                when {
-                    branch 'master'
-                }
-                steps {
-                    withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                        sh 'mvn clean install -f pom.xml'
-                        sh 'docker login ghcr.io -u $user -p $pass'
-                        sh 'mvn docker:push -f pom.xml'
+        stage("Build Images in parallel") {
+            parallel {
+                stage('build-3.8.2-jdk-11-17.12.0') {
+                    when {
+                        branch 'master'
+                    }
+                    steps {
+                        withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                            sh 'mvn clean install -f pom.xml'
+                            sh 'docker login ghcr.io -u $user -p $pass'
+                            sh 'mvn docker:push -f pom.xml'
+                        }
                     }
                 }
-            }
-            stage('build-3.8.2-jdk-8-17.12.0') {
-                when {
-                    branch 'master'
-                }
-                steps {
-                    withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8'
-                        sh 'docker login ghcr.io -u $user -p $pass'
-                        sh 'mvn docker:push -f pom.xml'
+                stage('build-3.8.2-jdk-8-17.12.0') {
+                    when {
+                        branch 'master'
+                    }
+                    steps {
+                        withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                            sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8'
+                            sh 'docker login ghcr.io -u $user -p $pass'
+                            sh 'mvn docker:push -f pom.xml'
+                        }
                     }
                 }
-            }
-            stage('build-3.8.2-jdk-16-17.12.0') {
-                when {
-                    branch 'master'
-                }
-                steps {
-                    withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16'
-                        sh 'docker login ghcr.io -u $user -p $pass'
-                        sh 'mvn docker:push -f pom.xml'
+                stage('build-3.8.2-jdk-16-17.12.0') {
+                    when {
+                        branch 'master'
+                    }
+                    steps {
+                        withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                            sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16'
+                            sh 'docker login ghcr.io -u $user -p $pass'
+                            sh 'mvn docker:push -f pom.xml'
+                        }
                     }
                 }
             }
