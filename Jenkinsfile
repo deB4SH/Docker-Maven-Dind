@@ -57,27 +57,18 @@ pipeline{
             }
             parallel {
                 stage('build-3.8.2-jdk-11-17.12.0') {
-                    when {
-                        branch 'master'
-                    }
                     steps {
                         sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=17.12.0'
                         sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=17.12.0'
                     }
                 }
                 stage('build-3.8.2-jdk-8-17.12.0') {
-                    when {
-                        branch 'master'
-                    }
                     steps {
                         sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=17.12.0'
                         sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=17.12.0'
                     }
                 }
                 stage('build-3.8.2-jdk-16-17.12.0') {
-                    when {
-                        branch 'master'
-                    }
                     steps {
                         sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=17.12.0'
                         sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=17.12.0'
