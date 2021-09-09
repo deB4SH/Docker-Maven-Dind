@@ -37,10 +37,10 @@ pipeline{
     }
     //stages to build and deploy
     stages {
-        when {
-            branch 'master'
-        }
         stage ('check: prepare') {
+            when {
+                branch 'master'
+            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-push-token', passwordVariable: 'pass', usernameVariable: 'user')]) {
                     sh 'docker login ghcr.io -u $user -p $pass'
@@ -51,41 +51,49 @@ pipeline{
                 }
             }
         }
-        stage('build-3.8.2-jdk-11-17.12.0') {
-            steps {
-                sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=17.12.0-ce'
-                sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=17.12.0-ce'
+        stage('build-job-collector') {
+            when {
+                branch 'master'
+            }
+            stages {
+                stage('build-3.8.2-jdk-11-17.12.0') {
+                    steps {
+                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=17.12.0-ce'
+                        sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=17.12.0-ce'
+                    }
+                }
+                stage('build-3.8.2-jdk-11-20.10.8') {
+                    steps {
+                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=20.10.8'
+                        sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=20.10.8'
+                    }
+                }
+                stage('build-3.8.2-jdk-8-17.12.0') {
+                    steps {
+                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=17.12.0-ce'
+                        sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=17.12.0-ce'
+                    }
+                }
+                stage('build-3.8.2-jdk-8-20.10.8') {
+                    steps {
+                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=20.10.8'
+                        sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=20.10.8'
+                    }
+                }
+                stage('build-3.8.2-jdk-16-17.12.0') {
+                    steps {
+                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=17.12.0-ce'
+                        sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=17.12.0-ce'
+                    }
+                }
+                stage('build-3.8.2-jdk-16-20.10.8') {
+                    steps {
+                        sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=20.10.8'
+                        sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=20.10.8'
+                    }
+                }
             }
         }
-        stage('build-3.8.2-jdk-11-20.10.8') {
-            steps {
-                sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=20.10.8'
-                sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-jdk-11 -Ddockerversion=20.10.8'
-            }
-        }
-        stage('build-3.8.2-jdk-8-17.12.0') {
-            steps {
-                sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=17.12.0-ce'
-                sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=17.12.0-ce'
-            }
-        }
-        stage('build-3.8.2-jdk-8-20.10.8') {
-            steps {
-                sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=20.10.8'
-                sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-8 -Ddockerversion=20.10.8'
-            }
-        }
-        stage('build-3.8.2-jdk-16-17.12.0') {
-            steps {
-                sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=17.12.0-ce'
-                sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=17.12.0-ce'
-            }
-        }
-        stage('build-3.8.2-jdk-16-20.10.8') {
-            steps {
-                sh 'mvn clean install -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=20.10.8'
-                sh 'mvn docker:push -f pom.xml -Dmavenversion=3.8.2-adoptopenjdk-16 -Ddockerversion=20.10.8'
-            }
-        }
+
     }
 }
